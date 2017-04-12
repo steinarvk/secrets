@@ -39,11 +39,6 @@ func FromFile(filename string) ([]byte, error) {
 	}
 
 	data, err := ioutil.ReadFile(path)
-	defer func() {
-		for i := range data {
-			data[i] = 0
-		}
-	}()
 	if err != nil {
 		return nil, fmt.Errorf("error reading %q: %v", path, err)
 	}
@@ -61,6 +56,11 @@ func FromYAML(filename string, target interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		for i := range data {
+			data[i] = 0
+		}
+	}()
 
 	if err := yaml.Unmarshal(data, target); err != nil {
 		return fmt.Errorf("error reading %q: %v", path, err)
