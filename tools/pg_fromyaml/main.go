@@ -10,6 +10,8 @@ import (
 
 var (
 	dbSecretsFilename = flag.String("db_secrets", "", "database secrets YAML file")
+
+	noEnsureSSL = flag.Bool("nossl", false, "don't add SSL option")
 )
 
 func mainCore() error {
@@ -18,7 +20,12 @@ func mainCore() error {
 		return err
 	}
 
-	url, err := dbSecrets.AsURL()
+	opts := &secrets.PostgresOptions{}
+	if *noEnsureSSL {
+		opts.WithoutSSL = true
+	}
+
+	url, err := dbSecrets.AsURLWithOptions(opts)
 	if err != nil {
 		return err
 	}

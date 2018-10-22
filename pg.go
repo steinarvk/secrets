@@ -13,7 +13,20 @@ type Postgres struct {
 	Password string `yaml:"password"`
 }
 
-func (d *Postgres) AsURL() (string, error) {
+type PostgresOptions struct {
+	WithoutSSL bool
+}
+
+func (d *Postgres) AsURLWithOptions(opts *PostgresOptions) (string, error) {
+	if opts == nil {
+		opts = &PostgresOptions{}
+	}
+
+	optionstring := ""
+	if !opts.WithoutSSL {
+		optionstring = "?ssl=true"
+	}
+
 	switch {
 	case d.Host == "":
 		return "", errors.New("missing host")
@@ -26,6 +39,10 @@ func (d *Postgres) AsURL() (string, error) {
 	case d.Password == "":
 		return "", errors.New("missing password")
 	default:
-		return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", d.User, d.Password, d.Host, d.Port, d.Database), nil
+		return fmt.Sprintf("postgres://%s:%s@%s:%d/%s%s", d.User, d.Password, d.Host, d.Port, d.Database, optionstring), nil
 	}
+}
+
+func (d *Postgres) AsURL() (string, error) {
+	return d.AsURLWithOptions(nil)
 }
