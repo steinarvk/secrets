@@ -6,11 +6,12 @@ import (
 )
 
 type Postgres struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Database string `yaml:"database"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
+	Host         string `yaml:"host"`
+	Port         int    `yaml:"port"`
+	Database     string `yaml:"database"`
+	User         string `yaml:"user"`
+	Password     string `yaml:"password"`
+	NoRequireSSL bool   `yaml:"no_require_ssl"`
 }
 
 type PostgresOptions struct {
@@ -58,5 +59,9 @@ func (d *Postgres) AsOptionString() (string, error) {
 	if err := d.check(); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=require", d.Host, d.Port, d.Database, d.User, d.Password), nil
+	sslmodeSuffix := " sslmode=require"
+	if d.NoRequireSSL {
+		sslmodeSuffix = ""
+	}
+	return fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s%s", d.Host, d.Port, d.Database, d.User, d.Password, sslmodeSuffix), nil
 }
